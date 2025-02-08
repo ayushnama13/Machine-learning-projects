@@ -50,9 +50,7 @@ models = {
     'Ridge Regression':Ridge(alpha = 1),
     'Lasso Regression' : Lasso(alpha = 0.01)
 }
-best_model = None
-best_rmse = float('inf')
-model_performance = {}
+
 for name,model in models.items():
     pipeline = Pipeline([
         ('preprocessor',preprocessor)
