@@ -14,7 +14,8 @@ from sklearn.linear_model import LinearRegression , Lasso , Ridge
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-
+import warnings
+warnings.filterwarnings('ignore')
 train_df = pd.read_csv("train.csv")
 test_df = pd.read_csv("test.csv")
 # print(train_df.info())
@@ -28,6 +29,7 @@ X = train_df.drop(columns = ["SalePrice","Id"])
 y = train_df["SalePrice"]
 
 X_train,X_val,y_train,y_val = train_test_split(X,y,test_size=0.2,random_state=42)
+X_test = test_df.drop(columns=["Id"])
 
 num_features = X_train.select_dtypes(include=['int64','float64']).columns
 cat_features = X_train.select_dtypes(include=['object']).columns
@@ -48,20 +50,23 @@ preprocessor = ColumnTransformer([
 models = {
     'Linear Regression':LinearRegression(),
     'Ridge Regression':Ridge(alpha = 1),
-    'Lasso Regression' : Lasso(alpha = 0.01)
+    'Lasso Regression' : Lasso(alpha = 0.0001)
 }
 
+best_model = None
+best_rmse = float("inf")
+model_performance = {}
+best_rmse = float("inf")
+
+
 for name,model in models.items():
+
     pipeline = Pipeline([
-        ('preprocessor',preprocessor)
-        ,('model',model)
+        ('preprocessor', preprocessor),
+        ('model', model)
     ])
-    pipeline.fit(X_train,y_train)
-    y_pred=pipeline.predict(X_val)
+    pipeline.fit(X_train, y_train)
+    y_pred = pipeline.predict(X_val)
     rmse = np.sqrt(mean_squared_error(y_val, y_pred))
-    mae = mean_absolute_error(y_val, y_pred)
-    r2 = r2_score(y_val, y_pred)
-    print(f"{name} Performance:")
-    print(f"  RMSE: {rmse:.2f}")
-    print(f"  MAE: {mae:.2f}")
-    print(f"  R² Score: {r2:.2f}\n")
+    print(f"{name} RMSE: {rmse:.2f}")
+
